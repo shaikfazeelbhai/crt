@@ -1,93 +1,80 @@
-'''
-admin features:
-1.add student
-2.delete student
-3.update student
-4.timetable
-5.marks
+from data import connection
 
-'''
-from db import connection
 def admin():
-    conn=connection()
-    cursor=conn.cursor()
-    print("""\nadmin menu:
-    1.add student
-    2.update student details
-    3.reset student password
-    4.timetable
-    5.view all students
-    6.update timetable
-    7.logout""")
-    ch=int(input("enter your choice"))
-    if ch==1:
-        add_student()
-    elif ch==2:
-        update_student()
-    elif ch==3:
-        reset_student_password()
-    elif ch==4:
-        update_marks()
-    elif ch==5:
-        view_all_students()
-    elif ch==6:
-        update_timetable()
-    elif ch==7:
-        logout()
+    conn = connection()
+    cursor = conn.cursor()
+    while True:
+        print("\nAdmin Menu:")
+        print("1. Login Account")
+        print("2. Balance Amount")
+        print("3. Deposit Amount")
+        print("4. Withdraw Amount")
+        print("5. Logout")
+        ch = int(input("Enter your choice: "))
+        if ch == 1:
+            login_account(conn, cursor)
+        elif ch == 2:
+            balance_amount(conn, cursor)
+        elif ch == 3:
+            deposite_amount(conn, cursor)
+        elif ch == 4:
+            withdraw_amount(conn, cursor)
+        elif ch == 5:
+            logout()
+            break
+        else:
+            print("not-valid choice. Please try again.")
+
+def login_account(conn, cursor):
+    account_number = input("enter account number: ")
+    password = input("enter password: ")
+    query = "select * from bankingsystem3 where account_number = %s and password = %s"
+    values = (account_number, password)
+    cursor.execute(query, values)
+    if cursor.fetchone():
+        print("Login successful")
     else:
-        print("invalid choice. please try again")
-def add_student():
-    conn=connection()
-    roll_no = input("enter roll no:")
-    name  =input("enter name:")
-    class_name=input("enter class:")
-    section = input("enter section:")
-    password = "password@123"
-    email = input("enter email:")
-    query="insert into student(roll_no,name,class_name,section,password,email) values(%s,%s,%s,%s,%s,%s)"
-    values = (roll_no,name,class_name,section,password,email)
+        print("Invalid account number or password")
+def balance_amount(conn, cursor):
+    account_number = input("Enter account number: ")
+    query = "select balance_amount from bankingsystem3 where account_number = %s"
+    values = (account_number,)
+    cursor.execute(query, values)
+    result = cursor.fetchone()
+    if result:
+        print(f"Balance_amount: {result[0]}")
+    else:
+        print("Account not found")
+
+def deposite_amount(conn, cursor):
+    account_number = input("Enter account number: ")
+    amount = float(input("Enter amount to deposit: "))
+    query = "update bankingsystem3 set balance_amount = balance_amount + %s where account_number = %s"
+    values = (amount, account_number)
+    cursor.execute(query, values)
     conn.commit()
-    print("student added successfully.")
-def update_student():
-    conn=connection()
-    cursor=conn.cursor()
-    roll_no = input("enter roll no of student to update:")
-    name  =input("enter new name:")
-    class_name=input("enter new class:")
-    section = input("enter new section:")
-    email = input("enter new email:")
-    query="update students SET name=%s, class=%s, section=%s, email=%s,where roll_no=%s"
-    values =(name,class_name,section,email,roll_no)
-    cursor.execute(query,values)
+    print("Deposit successful")
+def withdraw_amount(conn,cursor):
+    account_number = input("Enter account number: ")
+    amount = int(input("Enter amount to withdraw: "))
+    # fetch existing balance amount(stor in varaible)
+    # exitiging_ balance-amount= final _balance:
+    # u[date the balaance amoiunt with fina1la]
+    query = "update bankingsystem3 set balance_amount = balance_amount = %s where account_number = %s"
+    values = (amount, account_number)
+    cursor.execute(query, values)
+    # if cursor.fetchone()>amount:
+    #     print("Account not found")
+    # elif cursor.fetchone < amount:
+    #     print("Insufficient balance")
+    # else:
+    cursor.execute(query, values)
     conn.commit()
-    print("Student details updated successfully.")
-def reset_student_password():
-    pass
-def update_marks():
-    
-    cursor=conn.cursor()
-    roll_no=input("enter roll no of student")
-    subject=input("enter subject:")
-    marks=input("enter marks:")
-    query="update marks set marks=%s where roll_no=%s"
-    values=(marks,roll_no,subject)
-    cursor.execute(query,values)
-def view_all_students():
-    conn=connection()
-    cursor=conn.cursor()
-    query="select * from students"
-    cursor.execute(query)
-    result=cursor.fetchall()
-    for row in result:
-        print(row)
-def update_timetable():
-    pass
+    print("Withdrawal successful")
+
+
 def logout():
     print("logging out...")
 
-    return
-
-if __name__=="__main__":
+if __name__ == "__main__":
     admin()
-
-
